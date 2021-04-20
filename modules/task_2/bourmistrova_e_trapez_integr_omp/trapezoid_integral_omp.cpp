@@ -42,16 +42,16 @@ double SolveParallel(const std::vector<std::pair<int, int>>& bord,
         }
     } else {  // THREE DIMENSIONS
         double q0 = 1, q1 = 1, q2 = 1;
-        int i = 0;
         // int h1 = (bord[0].second.second
         // - bord[0].second.first) / num_threads;
         // int h2 = (bord[1].second.second
         // - bord[1].second.first) / num_threads;
         // int h3 = (bord[2].second.second
         // - bord[2].second.first) / num_threads;
+        #pragma omp parallel for private(i, j, k, q0, q1, q2)
+            reduction(+ : tr_sum)
         for (i = bord[0].first; i < bord[0].second + 1; i++) {
             q0 = CheckCoeff(i, bord[0]);
-            #pragma omp parallel for private(j, q1, q2) reduction(+ : tr_sum)
                 for (j = bord[1].first; j < bord[1].second + 1; j++) {
                     q1 = CheckCoeff(j, bord[1]);
                         for (k = bord[2].first; k < bord[2].second + 1; k++) {

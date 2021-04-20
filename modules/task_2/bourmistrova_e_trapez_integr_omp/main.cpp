@@ -58,7 +58,7 @@ TEST(Parallel_Operations_OpenMP, Test_ThreeDim) {
     double par_int = SolveParallel(vec, ptr3);
     // int parallel_sum = getParallelOperations(vec, "+");
     vec.clear();
-    ASSERT_NEAR(16.87, par_int, 0.999);
+    ASSERT_NEAR(16.87, par_int, 0.6);
 }
 
 TEST(Parallel_Operations_OpenMP, Test_TwoDimSum) {
