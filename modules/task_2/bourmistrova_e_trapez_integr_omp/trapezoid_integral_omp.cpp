@@ -48,8 +48,7 @@ double SolveParallel(const std::vector<std::pair<int, int>>& bord,
         // - bord[1].second.first) / num_threads;
         // int h3 = (bord[2].second.second
         // - bord[2].second.first) / num_threads;
-        #pragma omp parallel for private(i, j, k, q0, q1, q2)
-            reduction(+ : tr_sum)
+#pragma omp parallel for private(i, j, k, q0, q1, q2) reduction(+ : tr_sum)
         for (i = bord[0].first; i < bord[0].second + 1; i++) {
             q0 = CheckCoeff(i, bord[0]);
                 for (j = bord[1].first; j < bord[1].second + 1; j++) {
