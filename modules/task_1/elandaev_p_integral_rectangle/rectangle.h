@@ -5,11 +5,6 @@
 #include <utility>
 #include <vector>
 #include <functional>
-#include <cmath>
 
-void iterplus(std::vector<int> *B, int it, const std::vector<std::vector<int>> &p);
-double RecInt(std::vector<double> start,
-              std::vector<double> end,
-              std::function<double(std::vector<double>)> f,
-              double step);
+double RectangleIntegral(double start, double end, std::function<double(double)> f, double countstep);
 #endif  // MODULES_TASK_1_ELANDAEV_P_INTEGRAL_RECTANGLE_RECTANGLE_H_
