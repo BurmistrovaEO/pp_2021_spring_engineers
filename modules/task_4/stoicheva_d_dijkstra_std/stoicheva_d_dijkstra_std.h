@@ -8,7 +8,7 @@
 #include <random>
 #include <limits>
 
-#define DEBUG_PRINT
+// #define DEBUG_PRINT
 #define THREADS_COUNT 5
 #define MAX_DISTANCE 2147483647
 

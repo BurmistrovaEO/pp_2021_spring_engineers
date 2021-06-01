@@ -4,6 +4,7 @@
 #include <utility>
 #include <random>
 #include <iostream>
+#include <sstream>
 #include "../../../modules/task_4/stoicheva_d_dijkstra_std/stoicheva_d_dijkstra_std.h"
 #include "../../../3rdparty/unapproved/unapproved.h"
 
@@ -165,11 +166,20 @@ int find_unprocessed_point_with_min_distance_std(const std::vector<int>& graph,
     const int nthreads = std::thread::hardware_concurrency();
     size_t pointsPerThread = pointsCount / nthreads;
     const int delta = (graph.end() - graph.begin()) / nthreads;
-    const int last = pointsCount - nthreads * delta;
+    int last = 0;
+    if (pointsCount > nthreads * delta) {
+        last = pointsCount - nthreads * delta;
+    }
 
     std::promise<PointInfo> *promises = new std::promise<PointInfo>[nthreads];
     std::future<PointInfo> *futures = new std::future<PointInfo>[nthreads];
     std::thread *threads = new std::thread[nthreads];
+
+#ifdef DEBUG_PRINT
+    std::cout << "Threads: " << nthreads << ", Points per thread: " << pointsPerThread
+        << ", last: " << last << std::endl;
+#endif
+
 
     PointInfo minPoint;
     minPoint.distance = MAX_DISTANCE;
@@ -177,9 +187,13 @@ int find_unprocessed_point_with_min_distance_std(const std::vector<int>& graph,
     for (int i = 0; i < nthreads; i++) {
         futures[i] = promises[i].get_future();
         int start = i * pointsPerThread;
-        int end = (i + 1) * pointsPerThread; 
+        // int end = (i + 1) * pointsPerThread + (i == (nthreads - 1) ? last : 0); 
+        int end = i < nthreads - 1 ? (i + 1) * pointsPerThread : pointsCount;
+#ifdef DEBUG_PRINT
+        std::cout << "Thread: " << i << ", start: " << start << ", end: " << end << std::endl;
+#endif
         threads[i] = std::thread(atom_find_unprocessed_point_with_min_distance_std, 
-                                 graph, start, end, distances, processed, std::move(promises[i]));
+            std::ref(graph), start, end, std::ref(distances), std::ref(processed), std::move(promises[i]));
         threads[i].join();
         PointInfo threadMinPoint = futures[i].get();
         if (minPoint.distance > threadMinPoint.distance) {
@@ -207,7 +221,10 @@ int process_unprocessed_point(const std::vector<int>& graph,
         if (!(*processed)[point] && distance > 0) {
             int *dp = distances->data() + point;
             int *dcp = distances->data() + current_point;
-            *dp =  *dp < *dcp + distance ? *dp : *dcp + distance;  //         std::min(*dp, *dcp + distance);
+            if (*dp > *dcp + distance) {
+                *dp = *dcp + distance;
+            }
+            //*dp =  *dp < *dcp + distance ? *dp : *dcp + distance;  //         std::min(*dp, *dcp + distance);
             if (min_distance > *dp) {
                 min_distance = *dp;
                 min_distance_point = point;
@@ -234,15 +251,15 @@ void atom_process_unprocessed_point_std(
         if (!(*processed)[point] && distance > 0) {
             int* dp = distances->data() + point;
             int* dcp = distances->data() + current_point;
-            std::lock_guard<std::mutex> my_lock(my_mutex);
+            //std::lock_guard<std::mutex> my_lock(my_mutex);
             *dp = *dp < *dcp + distance ? *dp : *dcp + distance;  // std::min(*dp, *dcp + distance);
             if (local_minPoint.distance > *dp) {
                 local_minPoint.distance = *dp;
                 local_minPoint.index = point;
             }
         }
-        pr.set_value(local_minPoint);
     }
+    pr.set_value(local_minPoint);
 }
 
 int process_unprocessed_point_std(const std::vector<int>& graph,
@@ -265,8 +282,8 @@ int process_unprocessed_point_std(const std::vector<int>& graph,
     for (int i = 0; i < nthreads; i++) {
         futures[i] = promises[i].get_future();
         int start = i * pointsPerThread;
-        int end = (i + 1) * pointsPerThread; 
-        threads[i] = std::thread(atom_process_unprocessed_point_std, graph, start, end, std::ref(distances), 
+        int end = i < nthreads - 1 ? (i + 1) * pointsPerThread : pointsCount;
+        threads[i] = std::thread(atom_process_unprocessed_point_std, std::ref(graph), start, end, std::ref(distances),
                                  std::ref(processed), current_point, std::move(promises[i]));
         threads[i].join();
         PointInfo threadMinPoint = futures[i].get();
@@ -347,12 +364,12 @@ std::vector<int> dijkstra(const std::vector<int>& graph, size_t start, size_t en
         next_unprocessed_point = process_unprocessed_point(graph,
             &distances, &processed, next_unprocessed_point);
         if (next_unprocessed_point < 0) {
-            // std::cout << "- next unprocessed point not given, finding." << std::endl;
+            //  std::cout << "- next unprocessed point not given, finding." << std::endl;
             next_unprocessed_point =
                 find_unprocessed_point_with_min_distance(graph, distances,
                     processed);
         } else {
-            // std::cout << "+ next unprocessed point given, ok." << std::endl;
+            //  std::cout << "+ next unprocessed point given, ok." << std::endl;
         }
     }
     print_vector(distances, distances.size(), "distances");
@@ -408,12 +425,15 @@ std::vector<int> dijkstra_std(const std::vector<int>& graph, size_t start, size_
     distances[start] = 0;
     int next_unprocessed_point = static_cast<int>(start);
     while (next_unprocessed_point >= 0) {
-            next_unprocessed_point = process_unprocessed_point(graph,
+            next_unprocessed_point = process_unprocessed_point_std(graph,
                 &distances, &processed, next_unprocessed_point);
             if (next_unprocessed_point < 0) {
+                //  std::cout << "- next unprocessed point not given, finding." << std::endl;
                 next_unprocessed_point =
                     find_unprocessed_point_with_min_distance_std(graph, distances,
                         processed);
+            } else {
+                //  std::cout << "+ next unprocessed point given, ok." << std::endl;
             }
     }
     print_vector(distances, distances.size(), "distances:");
