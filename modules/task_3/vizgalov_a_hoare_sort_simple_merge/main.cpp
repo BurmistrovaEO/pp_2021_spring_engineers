@@ -114,7 +114,7 @@ TEST(Hoare_Sort_Simple_Merge_TBB, Merge_Large_Vectors) {
 }
 
 TEST(Hoare_Sort_Simple_Merge_TBB, Run_Hoare_Sort_Even_Size) {
-    std::vector<int> vec = getRandomVector(10000000);
+    std::vector<int> vec = getRandomVector(100000);
 
     ASSERT_NO_THROW(runHoareSort(&vec));
 
@@ -122,11 +122,27 @@ TEST(Hoare_Sort_Simple_Merge_TBB, Run_Hoare_Sort_Even_Size) {
 }
 
 TEST(Hoare_Sort_Simple_Merge_TBB, Run_Hoare_Sort_Odd_Size) {
-    std::vector<int> vec = getRandomVector(11111111);
+    std::vector<int> vec = getRandomVector(111111);
 
     ASSERT_NO_THROW(runHoareSort(&vec));
 
     EXPECT_TRUE(std::is_sorted(vec.begin(), vec.end()));
+}
+
+TEST(Hoare_Sort_Simple_Merge_TBB, Compare_Time) {
+    std::vector<int> vec1 = getRandomVector(1000000);
+
+    tbb::tick_count t0 = tbb::tick_count::now();
+    ASSERT_NO_THROW(runHoareSort(&vec1, 4));
+    tbb::tick_count t1 = tbb::tick_count::now();
+    std::cout << "Time (parallel): " << (t1 - t0).seconds() << std::endl;
+
+    std::vector<int> vec2 = getRandomVector(1000000);
+
+    tbb::tick_count t3 = tbb::tick_count::now();
+    ASSERT_NO_THROW(hoareSort(&vec2, 0, vec2.size() - 1));
+    tbb::tick_count t4 = tbb::tick_count::now();
+    std::cout << "Time (non-parallel): " << (t4 - t3).seconds() << std::endl;
 }
 
 int main(int argc, char **argv) {
