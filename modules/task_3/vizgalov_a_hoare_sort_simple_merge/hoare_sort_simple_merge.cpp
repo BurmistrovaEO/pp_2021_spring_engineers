@@ -2,7 +2,7 @@
 
 #include <tbb/tbb.h>
 #include <random>
-#include <limits>
+#include <climits>
 #include <functional>
 #include <algorithm>
 #include <stdexcept>
@@ -33,13 +33,15 @@ void hoareSort(std::vector<int>* vec, int low, int high) {
     }
 }
 
-std::vector<int> merge(const std::vector<int>& vec1, const std::vector<int>& vec2) {
+std::vector<int> merge(const std::vector<int>& vec1,
+                       const std::vector<int>& vec2) {
     std::vector<int> merged(vec1.size() + vec2.size());
 
     int i = 0;
     int j = 0;
     int k = 0;
-    while (i < static_cast<int>(vec1.size()) && j < static_cast<int>(vec2.size())) {
+    while (i < static_cast<int>(vec1.size())
+           && j < static_cast<int>(vec2.size())) {
         if (vec1[i] < vec2[j]) {
             merged[k] = vec1[i];
             i++;
@@ -80,10 +82,13 @@ void runHoareSort(std::vector<int>* vec, int numThreads) {
 
     for (int i = 0; i < numThreads; ++i) {
         if (i == numThreads - 1) {
-            segment.insert(segment.end(), vec->begin() + i * elementsPerSegment, vec->end());
+            segment.insert(segment.end(),
+                           vec->begin() + i * elementsPerSegment,
+                           vec->end());
         } else {
-            segment.insert(segment.end(), vec->begin() + i * elementsPerSegment,
-                vec->begin() + (i + 1) * elementsPerSegment);
+            segment.insert(segment.end(),
+                           vec->begin() + i * elementsPerSegment,
+                           vec->begin() + (i + 1) * elementsPerSegment);
         }
 
         segments.push_back(segment);
@@ -115,14 +120,13 @@ std::vector<int> getRandomVector(int size, int type) {
     std::mt19937 randomGenerator(dev());
 
     if (type == 1) {
-        std::uniform_int_distribution<int> randomValue(1, std::numeric_limits<int>::max());
+        std::uniform_int_distribution<int> randomValue(1, INT_MAX);
 
         for (int& item : newVec) {
             item = randomValue(randomGenerator);
         }
     } else if (type >= 0 && type <= 3) {
-        std::uniform_int_distribution<int> randomValue(std::numeric_limits<int>::min(),
-                                                       std::numeric_limits<int>::max());
+        std::uniform_int_distribution<int> randomValue(INT_MIN, INT_MAX);
 
         for (int& item : newVec) {
             item = randomValue(randomGenerator);

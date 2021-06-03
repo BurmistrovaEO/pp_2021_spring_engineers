@@ -7,7 +7,8 @@
 
 int partition(std::vector<int>* vec, int low, int high);
 void hoareSort(std::vector<int>* vec, int low, int high);
-std::vector<int> merge(const std::vector<int>& vec1, const std::vector<int>& vec2);
+std::vector<int> merge(const std::vector<int>& vec1,
+                       const std::vector<int>& vec2);
 
 void runHoareSort(std::vector<int>* vec, int numThreads = 4);
 
