@@ -63,8 +63,7 @@ std::vector<int> merge(const std::vector<int>& vec1, const std::vector<int>& vec
     return merged;
 }
 
-void runHoareSort(std::vector<int>* vec) {
-    int numThreads = 1;
+void runHoareSort(std::vector<int>* vec, int numThreads) {
     if (static_cast<int>(vec->size()) < numThreads) {
         hoareSort(vec, 0, vec->size() - 1);
         return;
@@ -81,11 +80,12 @@ void runHoareSort(std::vector<int>* vec) {
 
     for (int i = 0; i < numThreads; ++i) {
         if (i == numThreads - 1) {
-            segment.insert(segment.end(), vec->begin() + elementsPerSegment * i, vec->end());
+            segment.insert(segment.end(), vec->begin() + i * elementsPerSegment, vec->end());
         } else {
-            segment.insert(segment.end(), vec->begin() + elementsPerSegment * i,
-                vec->begin() + elementsPerSegment * (i + 1));
+            segment.insert(segment.end(), vec->begin() + i * elementsPerSegment,
+                vec->begin() + (i + 1) * elementsPerSegment);
         }
+
         segments.push_back(segment);
         segment.clear();
     }
@@ -97,12 +97,10 @@ void runHoareSort(std::vector<int>* vec) {
         }
     }, tbb::simple_partitioner());
 
-    std::vector<int> merged = segments[0];
+    *vec = segments[0];
     for (size_t i = 1; i < segments.size(); ++i) {
-        merged = merge(merged, segments[i]);
+        *vec = merge(*vec, segments[i]);
     }
-
-    *vec = merged;
 }
 
 // Types:
