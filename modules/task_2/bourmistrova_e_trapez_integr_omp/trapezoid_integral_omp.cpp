@@ -19,7 +19,7 @@ double OneDimIntegr(const std::vector<std::pair<int, int>>& bord,
     std::function<double(double, double, double)> f,
     int set_prec, int pr1, double pr2, double s, int b) {
     double tr_sum = 0;
-    omp_set_num_threads(4);
+    omp_set_num_threads(1);
     #pragma omp parallel for private(pr1, pr2) reduction(+:tr_sum)
     for (pr1 = 0; pr1 < set_prec; pr1++) {
         pr2 = bord[b].first + pr1 * s;
