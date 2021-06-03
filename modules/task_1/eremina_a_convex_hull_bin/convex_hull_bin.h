@@ -5,6 +5,7 @@
 #include <vector>
 #include <map>
 #include <stack>
+#include <cstdint>
 
 typedef struct {
     int x;
@@ -14,7 +15,7 @@ typedef struct {
 } point;
 
 // Generate binary image
-std::vector<int> generateImage(const int wigth, const int height);
+std::vector<uint8_t> generateImage(const int wigth, const int height);
 
 // Split binary image into components
 std::map<int, int> splitImageIntoComponents(
@@ -31,7 +32,7 @@ bool rightTurn(const point* a, const point* b, const point* c, bool flag);
 
 // Graham's algorithm - an algorithm for constructing
 // a convex hull in two-dimensional space
-std::vector<int> Convex_Hull(std::vector<int> img_src,
+std::vector<uint8_t> Convex_Hull(std::vector<uint8_t> img_src,
     const int height, const int width);
 
 #endif  // MODULES_TASK_1_EREMINA_A_CONVEX_HULL_BIN_CONVEX_HULL_BIN_H_

@@ -6,19 +6,20 @@
 #include <stack>
 #include <random>
 #include <ctime>
+#include <iostream>
 #define PI 3.1416
 
 // Generate binary image
-std::vector<int> generateImage(const int wigth, const int height) {
-    std::vector<int> img_src_dst(wigth*height);
+std::vector<uint8_t> generateImage(const int wigth, const int height) {
+    std::vector<uint8_t> img_src_dst(wigth*height);
     std::mt19937 gen;
     gen.seed(static_cast<unsigned int>(time(0)));
     for (int i = 0; i < wigth * height; i++) {
         int r = gen() % 5;
         if (r == 0) {
-            img_src_dst[i] = 1;
+            img_src_dst[i] = 0;  // black
         } else {
-            img_src_dst[i] = 1;
+            img_src_dst[i] = 255;  // white
         }
     }
     return img_src_dst;
@@ -137,18 +138,31 @@ bool rightTurn(const point* a, const point* b, const point* c, bool flag) {
     return u.x * v.y - u.y * v.x < 0;
 }
 
+bool leftTurn(const point* a, const point* b, const point* c, bool flag) {
+    point u = {b->x - a->x, b->y - a->y, 0, 0};
+    point v = {c->x - b->x, c->y - b->y, 0, 0};
+    if (flag) {
+        return u.x * v.y - u.y * v.x >= 0;
+    }
+    return u.x * v.y - u.y * v.x > 0;
+}
+
 // Graham's algorithm - an algorithm for constructing a convex hull
 // in two-dimensional space
-std::vector<int> Convex_Hull(std::vector<int> img_src,
+std::vector<uint8_t> Convex_Hull(std::vector<uint8_t> img_src,
     const int height, const int width) {
     // Output data
-    std::vector<int> img_dst(height * width, 0);
+    std::vector<uint8_t> img_dst(height * width, 255);
 
     // Copy img_src to img_mark
     std::vector<int> img_mark(height * width);
     for (int i = 0; i < height; i++) {
         for (int j = 0; j < width; j++) {
-            img_mark[i * width + j] = img_src[i * width + j];
+            if (img_src[i * width + j] == 0) {
+                img_mark[i * width + j] = 1;
+            } else {
+                img_mark[i * width + j] = 0;
+            }
         }
     }
 
@@ -162,7 +176,7 @@ std::vector<int> Convex_Hull(std::vector<int> img_src,
             for (int i = 0; i < height && cnt < mark.second; i++) {
                 for (int j = 0; j < width && cnt < mark.second; j++) {
                     if (img_mark[i * width + j] == mark.first) {
-                        img_dst[i * width + j] = 1;
+                        img_dst[i * width + j] = 0;
                         cnt++;
                     }
                 }
@@ -220,7 +234,7 @@ std::vector<int> Convex_Hull(std::vector<int> img_src,
         point elem = {-1, -1, 0, 0};
         point begin = S.top();
         point b = begin;
-        img_dst[begin.y * width + begin.x] = 1;
+        img_dst[begin.y * width + begin.x] = 0;
         S.pop();
         bool flag = true;
         while (flag) {
@@ -231,50 +245,45 @@ std::vector<int> Convex_Hull(std::vector<int> img_src,
                 elem = b;
                 flag = false;
             }
-            while (abs(begin.x - elem.x) > 1 || abs(begin.y - elem.y) > 1) {
-                int step_x, step_y;
-                if (begin.x > elem.x) {
-                    step_x = -1;
-                } else if (begin.x < elem.x) {
-                    step_x = 1;
+            if (abs(begin.x - elem.x) > 1 || abs(begin.y - elem.y) > 1) {
+                if (begin.x == elem.x) {
+                    int y = std::min(begin.y, elem.y) + 1;
+                    for (; y < std::max(begin.y, elem.y); y++) {
+                        img_dst[y * width + begin.x] = 0;
+                    }
                 } else {
-                    step_x = 0;
-                }
-                if (begin.y > elem.y) {
-                    step_y = -1;
-                } else if (begin.y < elem.y) {
-                    step_y = 1;
-                } else {
-                    step_y = 0;
-                }
-
-                std::stack<point> new_points;
-                point tmp[3] = {{begin.x + step_x, begin.y + step_y, 0, 0},
-                                {begin.x, begin.y + step_y, 0, 0},
-                                {begin.x + step_x, begin.y, 0, 0}};
-                double min_dist = height + width;
-                int min_tmp = 0;
-                for (int i = 0; i < 3; i++) {
-                    if (rightTurn(&begin, &(tmp[i]), &elem, 1)) {
-                        tmp[i].distanse_p0 =
-                            sqrt((begin.x - tmp[i].x) * (begin.x - tmp[i].x) +
-                                 (begin.y - tmp[i].y) * (begin.y - tmp[i].y)) +
-                            sqrt((elem.x - tmp[i].x) * (elem.x - tmp[i].x) +
-                                 (elem.y - tmp[i].y) * (elem.y - tmp[i].y));
-                        if (tmp[i].distanse_p0 < min_dist) {
-                            min_dist = tmp[i].distanse_p0;
-                            min_tmp = i;
+                    double k = static_cast<double>(elem.y - begin.y) /
+                               static_cast<double>(elem.x - begin.x);
+                    double b = static_cast<double>(elem.x*begin.y
+                      - begin.x * elem.y)
+                      / static_cast<double>(elem.x - begin.x);
+                    if (std::abs(begin.x - elem.x)
+                     >= std::abs(begin.y - elem.y)) {
+                        int x = std::min(begin.x, elem.x) + 1;
+                        for (; x < std::max(begin.x, elem.x); x++) {
+                            int y = static_cast<int>(std::round(k * x + b));
+                            img_dst[y * width + x] = 0;
+                        }
+                    } else {
+                        int y = std::min(begin.y, elem.y) + 1;
+                        for (; y < std::max(begin.y, elem.y); y++) {
+                            int x = static_cast<int>(std::round((y - b) / k));
+                            img_dst[y * width + x] = 0;
                         }
                     }
                 }
-                img_dst[tmp[min_tmp].y * width + tmp[min_tmp].x] = 1;
-                begin = tmp[min_tmp];
             }
-            img_dst[elem.y * width + elem.x] = 1;
+            img_dst[elem.y * width + elem.x] = 0;
             begin = elem;
         }
-
         delete [] points;
     }
+    // for (int i = 0; i < height; i++) {
+    //     for (int j = 0; j < width; j++) {
+    //         if (img_dst[i * width + j] == 0) std::cout << "+";
+    //         else std::cout << "_";
+    //     }
+    //     std::cout << std::endl;
+    // }
     return img_dst;
 }
