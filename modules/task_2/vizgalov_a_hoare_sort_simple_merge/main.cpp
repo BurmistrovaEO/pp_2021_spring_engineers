@@ -116,7 +116,7 @@ TEST(Hoare_Sort_Simple_Merge_OpenMP, Merge_Large_Vectors) {
 }
 
 TEST(Hoare_Sort_Simple_Merge_OpenMP, Run_Hoare_Sort_Even_Size) {
-    std::vector<int> vec = getRandomVector(10000000);
+    std::vector<int> vec = getRandomVector(1000000);
 
     ASSERT_NO_THROW(runHoareSort(&vec));
 
@@ -124,7 +124,7 @@ TEST(Hoare_Sort_Simple_Merge_OpenMP, Run_Hoare_Sort_Even_Size) {
 }
 
 TEST(Hoare_Sort_Simple_Merge_OpenMP, Run_Hoare_Sort_Odd_Size) {
-    std::vector<int> vec = getRandomVector(11111111);
+    std::vector<int> vec = getRandomVector(1111111);
 
     ASSERT_NO_THROW(runHoareSort(&vec));
 
