@@ -164,7 +164,6 @@ int find_unprocessed_point_with_min_distance_std(const std::vector<int>& graph,
 
     const int nthreads = std::thread::hardware_concurrency();  //  THREADS_COUNT
     size_t pointsPerThread = pointsCount / nthreads;
-    const int delta = (graph.end() - graph.begin()) / nthreads;
     std::promise<PointInfo> *promises = new std::promise<PointInfo>[nthreads];
     std::future<PointInfo> *futures = new std::future<PointInfo>[nthreads];
     std::thread *threads = new std::thread[nthreads];
