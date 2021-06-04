@@ -142,7 +142,6 @@ int find_unprocessed_point_with_min_distance(const std::vector<int>& graph,
 
 void atom_find_unprocessed_point_with_min_distance_std(const std::vector<int>& graph, int start, int end,
     const std::vector<int>& distances, const std::vector<bool>& processed, std::promise<PointInfo> &&pr) {
-    const int size = graph.size();
     PointInfo local_minPoint;
     local_minPoint.distance = MAX_DISTANCE;
     local_minPoint.index = -1;
@@ -166,11 +165,6 @@ int find_unprocessed_point_with_min_distance_std(const std::vector<int>& graph,
     const int nthreads = std::thread::hardware_concurrency();  //  THREADS_COUNT
     size_t pointsPerThread = pointsCount / nthreads;
     const int delta = (graph.end() - graph.begin()) / nthreads;
-    int last = 0;
-    if (pointsCount > nthreads * delta) {
-        last = pointsCount - nthreads * delta;
-    }
-
     std::promise<PointInfo> *promises = new std::promise<PointInfo>[nthreads];
     std::future<PointInfo> *futures = new std::future<PointInfo>[nthreads];
     std::thread *threads = new std::thread[nthreads];
@@ -267,7 +261,6 @@ int process_unprocessed_point_std(const std::vector<int>& graph,
     std::vector<bool>* processed, int current_point) {
 
     const int nthreads = std::thread::hardware_concurrency();  //  THREADS_COUNT
-    const int delta = (graph.end() - graph.begin()) / nthreads;
 
     size_t pointsCount = processed->size();
     size_t pointsPerThread = pointsCount / nthreads;
