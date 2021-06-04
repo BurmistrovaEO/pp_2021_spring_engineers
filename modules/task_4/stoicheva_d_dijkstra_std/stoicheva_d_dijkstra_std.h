@@ -1,7 +1,7 @@
 // Copyright 2021 Stoicheva Darya
 
-#ifndef MODULES_TASK_3_STOICHEVA_D_DIJKSTRA_STD_DIJKSTRA_STD_H_
-#define MODULES_TASK_3_STOICHEVA_D_DIJKSTRA_STD_DIJKSTRA_STD_H_
+#ifndef MODULES_TASK_4_STOICHEVA_D_DIJKSTRA_STD_STOICHEVA_D_DIJKSTRA_STD_H_
+#define MODULES_TASK_4_STOICHEVA_D_DIJKSTRA_STD_STOICHEVA_D_DIJKSTRA_STD_H_
 
 #include <vector>
 #include <string>
@@ -28,4 +28,4 @@ void print_vector(const std::vector<T>& vector, const size_t size, const std::st
 std::vector<int> dijkstra(const std::vector<int>& graph, size_t start, size_t end);
 std::vector<int> dijkstra_std(const std::vector<int>& graph, size_t start, size_t end);
 
-#endif  // MODULES_TASK_3_STOICHEVA_D_DIJKSTRA_STD_DIJKSTRA_STD_H_
+#endif  // MODULES_TASK_4_STOICHEVA_D_DIJKSTRA_STD_STOICHEVA_D_DIJKSTRA_STD_H_

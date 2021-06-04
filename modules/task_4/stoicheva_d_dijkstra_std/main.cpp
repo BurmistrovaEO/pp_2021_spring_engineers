@@ -38,13 +38,13 @@ TEST(Std, Test_Time) {
     // print_graph(g raph, pointsCount);
 
     auto time_start = std::chrono::steady_clock::now();
-    auto distances_seq = dijkstra(graph, root, 4800);
+    auto distances_seq = dijkstra(graph, root, 9800);
     auto time_end = std::chrono::steady_clock::now();
     std::chrono::duration<double> elapsed_time = time_end - time_start;
     std::cout << "Sequential Time: " << elapsed_time.count() << std::endl;
 
     time_start = std::chrono::steady_clock::now();
-    auto distances_parallel = dijkstra_std(graph, root, 4800);
+    auto distances_parallel = dijkstra_std(graph, root, 9800);
     time_end = std::chrono::steady_clock::now();
     elapsed_time = time_end - time_start;
     std::cout << "Parallel Time: " << elapsed_time.count() << std::endl;

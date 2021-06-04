@@ -163,7 +163,7 @@ int find_unprocessed_point_with_min_distance_std(const std::vector<int>& graph,
     size_t pointsCount = processed.size();
 
 
-    const int nthreads = std::thread::hardware_concurrency();
+    const int nthreads = std::thread::hardware_concurrency();  //  THREADS_COUNT
     size_t pointsPerThread = pointsCount / nthreads;
     const int delta = (graph.end() - graph.begin()) / nthreads;
     int last = 0;
@@ -187,14 +187,16 @@ int find_unprocessed_point_with_min_distance_std(const std::vector<int>& graph,
     for (int i = 0; i < nthreads; i++) {
         futures[i] = promises[i].get_future();
         int start = i * pointsPerThread;
-        // int end = (i + 1) * pointsPerThread + (i == (nthreads - 1) ? last : 0); 
         int end = i < nthreads - 1 ? (i + 1) * pointsPerThread : pointsCount;
 #ifdef DEBUG_PRINT
         std::cout << "Thread: " << i << ", start: " << start << ", end: " << end << std::endl;
 #endif
-        threads[i] = std::thread(atom_find_unprocessed_point_with_min_distance_std, 
+        threads[i] = std::thread(atom_find_unprocessed_point_with_min_distance_std,
             std::ref(graph), start, end, std::ref(distances), std::ref(processed), std::move(promises[i]));
-        threads[i].join();
+        threads[i].detach();
+    }
+
+    for (int i = 0; i < nthreads; i++) {
         PointInfo threadMinPoint = futures[i].get();
         if (minPoint.distance > threadMinPoint.distance) {
             minPoint.distance = threadMinPoint.distance;
@@ -224,7 +226,6 @@ int process_unprocessed_point(const std::vector<int>& graph,
             if (*dp > *dcp + distance) {
                 *dp = *dcp + distance;
             }
-            //*dp =  *dp < *dcp + distance ? *dp : *dcp + distance;  //         std::min(*dp, *dcp + distance);
             if (min_distance > *dp) {
                 min_distance = *dp;
                 min_distance_point = point;
@@ -237,21 +238,20 @@ int process_unprocessed_point(const std::vector<int>& graph,
     return min_distance_point;
 }
 
-
 void atom_process_unprocessed_point_std(
     const std::vector<int>& graph, const int start, const int end,
-    std::vector<int>* distances, std::vector<bool>* processed, 
-    const int current_point, std::promise<PointInfo> &&pr) {
+    std::vector<int>* distances, std::vector<bool>* processed,
+    const int current_point, std::promise<PointInfo>&& pr) {
+    int start_row_index = current_point * static_cast<int>(processed->size());
+    int* dcp = &(*distances)[current_point];
     PointInfo local_minPoint;
     local_minPoint.distance = MAX_DISTANCE;
-    local_minPoint.index= -1;
+    local_minPoint.index = -1;
     for (int point = start; point < end; point++) {
-        int start_row_index = current_point * static_cast<int>(processed->size());
         int distance = graph[start_row_index + point];
         if (!(*processed)[point] && distance > 0) {
-            int* dp = distances->data() + point;
-            int* dcp = distances->data() + current_point;
-            //std::lock_guard<std::mutex> my_lock(my_mutex);
+            int* dp = &(*distances)[point];
+            std::lock_guard<std::mutex> my_lock(my_mutex);
             *dp = *dp < *dcp + distance ? *dp : *dcp + distance;  // std::min(*dp, *dcp + distance);
             if (local_minPoint.distance > *dp) {
                 local_minPoint.distance = *dp;
@@ -266,11 +266,11 @@ int process_unprocessed_point_std(const std::vector<int>& graph,
     std::vector<int>* distances,
     std::vector<bool>* processed, int current_point) {
 
-    size_t pointsCount = processed->size();
-    size_t pointsPerThread = pointsCount / THREADS_COUNT;
-
-    const int nthreads = std::thread::hardware_concurrency();
+    const int nthreads = std::thread::hardware_concurrency();  //  THREADS_COUNT
     const int delta = (graph.end() - graph.begin()) / nthreads;
+
+    size_t pointsCount = processed->size();
+    size_t pointsPerThread = pointsCount / nthreads;
 
     std::promise<PointInfo> *promises = new std::promise<PointInfo>[nthreads];
     std::future<PointInfo> *futures = new std::future<PointInfo>[nthreads];
@@ -283,9 +283,12 @@ int process_unprocessed_point_std(const std::vector<int>& graph,
         futures[i] = promises[i].get_future();
         int start = i * pointsPerThread;
         int end = i < nthreads - 1 ? (i + 1) * pointsPerThread : pointsCount;
-        threads[i] = std::thread(atom_process_unprocessed_point_std, std::ref(graph), start, end, std::ref(distances),
-                                 std::ref(processed), current_point, std::move(promises[i]));
-        threads[i].join();
+        threads[i] = std::thread(atom_process_unprocessed_point_std, std::cref(graph), start, end, std::ref(distances),
+            std::ref(processed), current_point, std::move(promises[i]));
+        threads[i].detach();
+    }
+
+    for (int i = 0; i < nthreads; i++) {
         PointInfo threadMinPoint = futures[i].get();
         if (minPoint.distance > threadMinPoint.distance) {
             minPoint.distance = threadMinPoint.distance;
@@ -296,36 +299,6 @@ int process_unprocessed_point_std(const std::vector<int>& graph,
     delete []promises;
     delete []futures;
     delete []threads;
-
-
-
-
-
-    // minPoint = tbb::parallel_reduce(
-    //     tbb::blocked_range<int>(0, static_cast<int>(pointsCount), static_cast<int>(pointsPerThread)),
-    //     minPoint,
-    //     [&](const tbb::blocked_range<int>& range, PointInfo local_minPoint) {
-    //         for (int point = range.begin(); point < range.end(); point++) {
-    //             int start_row_index = current_point * static_cast<int>(processed->size());
-    //             int distance = graph[start_row_index + point];
-    //             if (!(*processed)[point] && distance > 0) {
-    //                 int* dp = distances->data() + point;
-    //                 int* dcp = distances->data() + current_point;
-    //                 *dp = *dp < *dcp + distance ? *dp : *dcp + distance;  // std::min(*dp, *dcp + distance);
-    //                 if (local_minPoint.distance > *dp) {
-    //                     local_minPoint.distance = *dp;
-    //                     local_minPoint.index = point;
-    //                 }
-    //             }
-    //         }
-    //         return local_minPoint;
-    //     },
-    //     [&](PointInfo p1, PointInfo p2) {
-    //         if (p1.distance > p2.distance) {
-    //             return p2;
-    //         }
-    //         return p1;
-    //     });
 
     (*processed)[current_point] = true;
     return minPoint.index;
