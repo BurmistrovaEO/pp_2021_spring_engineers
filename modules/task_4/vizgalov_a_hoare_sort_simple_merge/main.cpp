@@ -117,7 +117,7 @@ TEST(Hoare_Sort_Simple_Merge_STD, Merge_Large_Vectors) {
 }
 
 TEST(Hoare_Sort_Simple_Merge_STD, Run_Hoare_Sort_Even_Size) {
-    std::vector<int> vec = getRandomVector(1000000);
+    std::vector<int> vec = getRandomVector(100000);
 
     ASSERT_NO_THROW(runHoareSort(&vec));
 
@@ -125,7 +125,7 @@ TEST(Hoare_Sort_Simple_Merge_STD, Run_Hoare_Sort_Even_Size) {
 }
 
 TEST(Hoare_Sort_Simple_Merge_STD, Run_Hoare_Sort_Odd_Size) {
-    std::vector<int> vec = getRandomVector(1111111);
+    std::vector<int> vec = getRandomVector(111111);
 
     ASSERT_NO_THROW(runHoareSort(&vec));
 
@@ -133,14 +133,14 @@ TEST(Hoare_Sort_Simple_Merge_STD, Run_Hoare_Sort_Odd_Size) {
 }
 
 TEST(Hoare_Sort_Simple_Merge_STD, Compare_Time) {
-  std::vector<int> vec1 = getRandomVector(1000000);
+  std::vector<int> vec1 = getRandomVector(100000);
 
   auto t0 = std::chrono::steady_clock::now();
   ASSERT_NO_THROW(runHoareSort(&vec1));
   auto t1 = std::chrono::steady_clock::now();
   std::cout << "Time (parallel): " << ((t1 - t0).count() / 1e6) << "ms" << std::endl;
 
-  std::vector<int> vec2 = getRandomVector(1000000);
+  std::vector<int> vec2 = getRandomVector(100000);
 
   auto t2 = std::chrono::steady_clock::now();
   ASSERT_NO_THROW(hoareSort(&vec2, 0, vec2.size() - 1));
