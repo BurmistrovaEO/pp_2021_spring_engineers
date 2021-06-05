@@ -32,19 +32,19 @@ std::vector<int> create_random_graph(const size_t points,
 
 TEST(Std, Test_Time) {
     const size_t root = 1;
-    const size_t pointsCount = 10000;
+    const size_t pointsCount = 1000;
 
     std::vector<int> graph = create_random_graph(pointsCount, 100);
     // print_graph(g raph, pointsCount);
 
     auto time_start = std::chrono::steady_clock::now();
-    auto distances_seq = dijkstra(graph, root, 9800);
+    auto distances_seq = dijkstra(graph, root, 100);
     auto time_end = std::chrono::steady_clock::now();
     std::chrono::duration<double> elapsed_time = time_end - time_start;
     std::cout << "Sequential Time: " << elapsed_time.count() << std::endl;
 
     time_start = std::chrono::steady_clock::now();
-    auto distances_parallel = dijkstra_std(graph, root, 9800);
+    auto distances_parallel = dijkstra_std(graph, root, 100);
     time_end = std::chrono::steady_clock::now();
     elapsed_time = time_end - time_start;
     std::cout << "Parallel Time: " << elapsed_time.count() << std::endl;
