@@ -1,10 +1,9 @@
-// Copyright 2021 Stoicheva Darya
+// Copyright 2020 Stoicheva Darya
 #include <gtest/gtest.h>
-#include <tbb/tick_count.h>
 #include <vector>
-#include <iostream>
-#include "../../../modules/task_3/stoicheva_d_dijkstra_tbb/dijkstra_tbb.h"
-
+#include <algorithm>
+#include "../../../3rdparty/unapproved/unapproved.h"
+#include "./stoicheva_d_dijkstra_std.h"
 
 std::vector<int> create_random_graph(const size_t points,
                                      const size_t max_distance) {
@@ -31,48 +30,49 @@ std::vector<int> create_random_graph(const size_t points,
     return matrix;
 }
 
-TEST(Tbb, Test_Time) {
+TEST(Std, Test_Time) {
     const size_t root = 1;
-    const size_t pointsCount = 5000;
-    tbb::tick_count time_start, time_end;
+    const size_t pointsCount = 1000;
 
     std::vector<int> graph = create_random_graph(pointsCount, 100);
     // print_graph(g raph, pointsCount);
 
-    time_start = tbb::tick_count::now();
-    auto distances_seq = dijkstra(graph, root, 4800);
-    time_end = tbb::tick_count::now();
-    std::cout << "Sequential Time: " << (time_end - time_start).seconds() << std::endl;
+    auto time_start = std::chrono::steady_clock::now();
+    auto distances_seq = dijkstra(graph, root, 100);
+    auto time_end = std::chrono::steady_clock::now();
+    std::chrono::duration<double> elapsed_time = time_end - time_start;
+    std::cout << "Sequential Time: " << elapsed_time.count() << std::endl;
 
-    time_start = tbb::tick_count::now();
-    auto distances_parallel = dijkstra_tbb(graph, root, 4800);
-    time_end = tbb::tick_count::now();
-    std::cout << "Parallel Time: " << (time_end - time_start).seconds() << std::endl;
+    time_start = std::chrono::steady_clock::now();
+    auto distances_parallel = dijkstra_std(graph, root, 100);
+    time_end = std::chrono::steady_clock::now();
+    elapsed_time = time_end - time_start;
+    std::cout << "Parallel Time: " << elapsed_time.count() << std::endl;
     ASSERT_EQ(distances_seq, distances_parallel);
 }
 
-TEST(Tbb, Test_EmptyGraph) {
+TEST(Std, Test_EmptyGraph) {
     std::vector<int> graph = {};
 
-    ASSERT_ANY_THROW(dijkstra_tbb(graph, 0, 0));
+    ASSERT_ANY_THROW(dijkstra_std(graph, 0, 0));
 }
 
-TEST(Tbb, Test_Graph1) {
+TEST(Std, Test_Graph1) {
     std::vector<int> graph = { 0 };
     std::vector<int> result = { 1 };
 
-    ASSERT_EQ(result, dijkstra_tbb(graph, 1, 1));
+    ASSERT_EQ(result, dijkstra_std(graph, 1, 1));
 }
 
-TEST(Tbb, Test_Graph2) {
+TEST(Std, Test_Graph2) {
     std::vector<int> graph = { 0, 7,
                                7, 0 };
     std::vector<int> result = { 1, 2 };
 
-    ASSERT_EQ(result, dijkstra_tbb(graph, 1, 2));
+    ASSERT_EQ(result, dijkstra_std(graph, 1, 2));
 }
 
-TEST(Tbb, Test_Graph6) {
+TEST(Std, Test_Graph6) {
     std::vector<int> graph = { 0, 7, 9, -1, -1, 14,
                               7, 0, 10, 15, -1, -1,
                               9, 10, 0, 11, -1, 2,
@@ -83,10 +83,10 @@ TEST(Tbb, Test_Graph6) {
 
     print_graph(graph, 6);
 
-    ASSERT_EQ(result, dijkstra_tbb(graph, 1, 6));
+    ASSERT_EQ(result, dijkstra_std(graph, 1, 6));
 }
 
-TEST(Tbb, Test_Graph6a) {
+TEST(Std, Test_Graph6a) {
     std::vector<int> graph = { 0, 1, 4, -1, 2, -1,
                               1, 0, -1, 9, -1, -1,
                               4, -1, 0, 7, -1, -1,
@@ -95,7 +95,7 @@ TEST(Tbb, Test_Graph6a) {
                               -1, -1, -1, 2, 8, 0 };
     std::vector<int> result = { 1, 5, 6 };
 
-    ASSERT_EQ(result, dijkstra_tbb(graph, 1, 6));
+    ASSERT_EQ(result, dijkstra_std(graph, 1, 6));
 }
 
 TEST(Sequential, Test_EmptyGraph) {
@@ -148,8 +148,7 @@ TEST(Sequential, Test_Graph6a) {
     ASSERT_EQ(result, dijkstra(graph, 1, 6));
 }
 
-int main(int argc, char** argv) {
+int main(int argc, char **argv) {
     ::testing::InitGoogleTest(&argc, argv);
-
     return RUN_ALL_TESTS();
 }
