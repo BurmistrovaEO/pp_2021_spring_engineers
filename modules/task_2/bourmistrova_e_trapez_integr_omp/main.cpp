@@ -4,7 +4,7 @@
 #include <vector>
 #include <cmath>
 #include <functional>
-#include "./trapezoid_integral_omp.h"
+#include "./trapez_integr_omp.h"
 
 double integral(double x, double y = 1, double z = 1) {
     return (pow(x, 2));
