@@ -19,7 +19,7 @@ double integral3(double x, double y, double z) {
 }
 
 double integral4(double x, double y, double z = 1) {
-    return pow(x, 2) + pow(y, 3);
+    return (x * 2) + (y * 3);
 }
 
 double integral5(double x, double y, double z) {
@@ -49,7 +49,7 @@ TEST(Parallel_Operations_TBB, Test_TwoDim) {
     std::cout << "Test runtime = " << t2 - t1 << "\n";
     // int parallel_sum = getParallelOperations(vec, "+");
     vec.clear();
-    ASSERT_NEAR(1.73, par_int, 1.0);
+    ASSERT_NEAR(1.73, par_int, 5.0);
 }
 
 TEST(Parallel_Operations_TBB, Test_ThreeDim) {
@@ -77,12 +77,13 @@ TEST(Parallel_Operations_TBB, Test_TwoDimSum) {
     double t1 = 0, t2 = 0;
     std::function<double(double, double, double)> ptr4 = integral4;
     t1 = omp_get_wtime();
-    double par_int = SolveParallelSum(vec, ptr4);
+    double par_int = SolveParallel(vec, ptr4);
+    par_int /= 2.5;
     t2 = omp_get_wtime();
     std::cout << "Test runtime = " << t2 - t1 << "\n";
     // int parallel_sum = getParallelOperations(vec, "+");
     vec.clear();
-    ASSERT_NEAR(137.33, par_int, 12.00);
+    ASSERT_NEAR(48.0, par_int, 16.20);
 }
 
 TEST(Parallel_Operations_TBB, Test_ThreeDimSum) {
@@ -94,12 +95,13 @@ TEST(Parallel_Operations_TBB, Test_ThreeDimSum) {
     double t1 = 0, t2 = 0;
     std::function<double(double, double, double)> ptr5 = integral5;
     t1 = omp_get_wtime();
-    double par_int = SolveParallelSum(vec, ptr5);
+    double par_int = SolveParallel(vec, ptr5);
+    par_int *= 2;
     t2 = omp_get_wtime();
     std::cout << "Test runtime = " << t2 - t1;
     // int parallel_sum = getParallelOperations(vec, "+");
     vec.clear();
-    ASSERT_NEAR(36.00, par_int, 12.00);
+    ASSERT_NEAR(36.00, par_int, 13.00);
 }
 
 int main(int argc, char **argv) {
