@@ -80,16 +80,18 @@ double SolveParallel(const std::vector<std::pair<int, int>>& bord,
 			set_precision,0,set_precision,0,set_precision), 0.0,
 			[&](tbb::blocked_range3d<int,int,int> r, double running_total){
 				for (k = r.pages().begin(); k < r.pages().end(); ++k) {
+						x4 = bord[0].first + k * s;
+						x5 = x4 + k * s;
 					for (i = r.rows().begin(); i < r.rows().end(); ++i) {
-						for (j = r.cols().begin(); j < r.cols().end(); ++j) {
 							x = bord[1].first + i * s2;
-							x1 = x + i * s;
+							x1 = x + i * s2;
+						for (j = r.cols().begin(); j < r.cols().end(); ++j) {
 							x2 = bord[2].first + j * s3;
-							x3 = x2 + j * s;
-							x4 = bord[0].first + k * s;
-							x5 = x4 + k * s;
-							running_total += f(x2, x, x4) + f(x2, x1, x4) + f(x2, x, x5) + f(x2, x1, x5) +
-								f(x3, x, x4) + f(x3, x1, x4) + f(x3, x, x5) + f(x3, x1, x5);
+							x3 = x2 + j * s3;
+							running_total += f(x2, x, x4) + f(x2, x1, x4) + 
+								f(x2, x, x5) + f(x2, x1, x5) +
+								f(x3, x, x4) + f(x3, x1, x4) + 
+								f(x3, x, x5) + f(x3, x1, x5);
 						}
 					}
 					}return running_total;
