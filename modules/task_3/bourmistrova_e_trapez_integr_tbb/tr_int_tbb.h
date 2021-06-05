@@ -6,7 +6,7 @@
 #include <functional>
 #include <utility>
 
-// std::vector<int> getRandomVector(int  sz);
+double CheckCoeff(double i, int s_pr);
 double SolveParallel(const std::vector<std::pair<int, int>>& bord,
     std::function<double(double, double, double)> f);
 double SolveParallelSum(const std::vector<std::pair<int, int>>& bord,

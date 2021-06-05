@@ -41,7 +41,6 @@ TEST(Parallel_Operations_TBB, Test_TwoDim) {
     std::vector<std::pair<int, int>> vec(2);
     vec[0] = std::make_pair(1, 2);
     vec[1] = std::make_pair(2, 3);
-    // std::function<double(double)> func= pow(x, 2);
     double t1 = 0, t2 = 0;
     std::function<double(double, double, double)> ptr2 = integral2;
     t1 = omp_get_wtime();

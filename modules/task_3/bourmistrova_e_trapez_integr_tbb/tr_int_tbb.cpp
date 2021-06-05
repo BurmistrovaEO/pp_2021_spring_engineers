@@ -187,7 +187,6 @@ double SolveParallelSum(const std::vector<std::pair<int, int>>& bord,
                 }
                 return running_total;
             }, std::plus<double>());
-         // std::cout << std::endl <<  tr_sum << std::endl;
     }
     return tr_sum;
 }
