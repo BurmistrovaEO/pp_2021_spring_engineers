@@ -5,7 +5,7 @@
 #include <random>
 #include <iostream>
 #include <functional>
-#include "./../../modules/task_2/bourmistrova_e_trapez_integr_omp/trapezoid_integral_omp.h"
+#include "./../../modules/task_2/bourmistrova_e_trapez_integr_omp/trapez_integr_omp.h"
 
 
 double CheckCoeff(double i, int s_pr) {
