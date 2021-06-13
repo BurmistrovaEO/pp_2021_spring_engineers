@@ -10,7 +10,7 @@
 
 double CheckCoeff(double i, int s_pr) {
     double qju = 1.00;
-    if (i = 0 || i == s_pr)
+    if ((i = 0) || (i == s_pr))
         qju *= 0.5;
     return qju;
 }
@@ -31,10 +31,8 @@ double SolveParallel(const std::vector<std::pair<int, int>>& bord,
     std::function<double(double, double, double)> f) {
     omp_set_num_threads(4);
     double tr_sum = 0;
-    double m = 1;
-    int i = 0, j = 0, k = 0;
-    double q0 = 0, q1 = 0, q2 = 0;
-    double x = 0, x1 = 0, x2 = 0, x3 = 0, x4 = 0, x5 = 0;
+    int i = 0, j = 0;
+    double x = 0, x1 = 0, x2 = 0, x3 = 0;
     int set_precision = 1000;
     double s = (bord[0].second -
         bord[0].first)/ static_cast<double>(set_precision);
@@ -59,7 +57,6 @@ double SolveParallel(const std::vector<std::pair<int, int>>& bord,
             bord[1].first) / static_cast<double>(set_precision);
         double s3 = (bord[2].second -
             bord[2].first) / static_cast<double>(set_precision);
-        double q0 = 1, q1 = 1, q2 = 1;
         double tmp = 0;
         #pragma omp parallel for reduction(+:tr_sum)
         for (i = 0; i < set_precision; i++) {
@@ -85,7 +82,6 @@ double SolveParallelSum(const std::vector<std::pair<int, int>>& bord,
     double tr_sum = 0;
     double m = 1;
     int i = 0, j = 0, k = 0;
-    double q0 = 0, q1 = 0, q2 = 0;
     double x = 0, x1 = 0, x2 = 0, x3 = 0;
     int set_precision = 1000;
     double s = (bord[0].second -
@@ -114,9 +110,6 @@ double SolveParallelSum(const std::vector<std::pair<int, int>>& bord,
             bord[1].first) / static_cast<double>(set_precision);
         double s3 = (bord[2].second -
             bord[2].first) / static_cast<double>(set_precision);
-        double m = 1;
-        double q0 = 1, q1 = 1, q2 = 1;
-        double tmp = 0;
 #pragma omp parallel for reduction(+:tr_sum)
         for (i = 0; i < set_precision; i++) {
             x = bord[2].first + i * s3;
