@@ -83,7 +83,7 @@ TEST(Parallel_Operations_OpenMP, Test_TwoDimSum) {
     std::cout << "Test runtime = " << t2 - t1 <<"\n";
     // int parallel_sum = getParallelOperations(vec, "+");
     vec.clear();
-    ASSERT_NEAR(137.33, par_int, 5.00);
+    ASSERT_NEAR(137.33, par_int, 8.00);
 }
 
 TEST(Parallel_Operations_OpenMP, Test_ThreeDimSum) {
