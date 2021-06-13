@@ -81,7 +81,7 @@ double SolveParallelSum(const std::vector<std::pair<int, int>>& bord,
     omp_set_num_threads(4);
     double tr_sum = 0;
     double m = 1;
-    int i = 0, j = 0, k = 0;
+    int i = 0, j = 0;
     double x = 0, x1 = 0, x2 = 0, x3 = 0;
     int set_precision = 1000;
     double s = (bord[0].second -
